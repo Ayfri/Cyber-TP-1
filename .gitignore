@@ -1,0 +1,8 @@
+# Jetbrains IDEs
+.idea
+
+# PHP Composer
+/vendor
+
+# Environment variables
+.env
