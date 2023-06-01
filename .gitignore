@@ -3,6 +3,7 @@
 
 # PHP Composer
 /vendor
+composer.phar
 
 # Environment variables
 .env
