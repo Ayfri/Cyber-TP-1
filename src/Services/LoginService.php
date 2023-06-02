@@ -3,13 +3,11 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use JetBrains\PhpStorm\NoReturn;
-
-class LoginService extends Service {
+/*class LoginService extends Service {
 
 	public function __construct() {
 		parent::__construct(false);
 	}
 
-	#[NoReturn] protected function handleRequest(): void {}
-}
+	#[NoReturn] protected function handleRoutes(): void {}
+}*/

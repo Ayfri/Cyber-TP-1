@@ -1,4 +1,4 @@
-import {sha512} from "./utils.js";
+import {randomSalt, sha512} from "./utils.js";
 
 document.addEventListener('DOMContentLoaded', () => {
 	/**
@@ -15,8 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			alert('Passwords do not match');
 		}
 
-		const hashedPassword = await sha512(password);
-		const hashedConfirmPassword = await sha512(confirmPassword);
+		const salt = await randomSalt();
+		const hashedPassword = await sha512(salt + password);
+		const hashedConfirmPassword = await sha512(salt + confirmPassword);
 
 		const formData = new FormData(form);
 		formData.set('password', hashedPassword);

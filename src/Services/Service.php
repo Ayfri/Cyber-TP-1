@@ -14,13 +14,20 @@ abstract class Service {
 		$this->requiresAuth = $requires_auth;
 	}
 
+	public static function isHandledRoute(): bool {
+		$route = $_SERVER['REQUEST_URI'];
+		return in_array($route, static::routes(), true);
+	}
+
+	abstract public static function routes(): array;
+
 	#[NoReturn]
 	public function handle(): void {
 		if ($this->requiresAuth) {
 			$this->checkAuth();
 		}
 		$this->data = [...$_POST, ...$_GET];
-		$this->handleRequest();
+		$this->handleRoutes();
 	}
 
 	private function checkAuth(): void {
@@ -36,7 +43,11 @@ abstract class Service {
 	}
 
 	#[NoReturn]
-	abstract protected function handleRequest(): void;
+	abstract protected function handleRoutes(): void;
+
+	public function onRoutePost(string $route): bool {
+		return $_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === $route;
+	}
 
 	protected function getRequiredParam(string $param, ?string $error = null): string {
 		$error_message = $error ?? "Missing required parameter '$param'.";
@@ -54,10 +65,15 @@ abstract class Service {
 		exit();
 	}
 
-	protected function renderOnGet(string $view, array $data = []): void {
-		if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+	protected function renderOnGet(string $route, ?string $view = null, array $data = []): void {
+		$view ??= $route;
+		if ($this->onRouteGet($route)) {
 			$this->render($view, $data);
 		}
+	}
+
+	public function onRouteGet(string $route): bool {
+		return $_SERVER['REQUEST_METHOD'] === 'GET' && $_SERVER['REQUEST_URI'] === $route;
 	}
 
 	protected function render(string $view, array $data = []): void {

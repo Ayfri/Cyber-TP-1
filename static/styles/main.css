@@ -1,54 +1,74 @@
 :root {
-	--focus-color: #9155ef;
-	--text-color: white;
+    --focus-color: #9155ef;
+    --button-color: var(--focus-color);
+    --button-hover-color: #a56dff;
+    --text-color: white;
 }
 
 * {
-	font-family: "JetBrains Mono", "Lucida Console", Consolas, serif;
-	margin: 0;
+    font-family: "JetBrains Mono", "Lucida Console", Consolas, serif;
+    margin: 0;
 }
 
 body {
-	align-items: center;
-	background-color: #202028;
-	color: var(--text-color);
-	display: flex;
-	flex-direction: column;
-	font-size: 1.2em;
-	height: 100vh;
-	justify-content: center;
-	overflow: hidden;
-	width: 100vw;
+    align-items: center;
+    background-color: #202028;
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    font-size: 1.2em;
+    height: 100vh;
+    justify-content: center;
+    overflow: hidden;
+    width: 100vw;
 }
 
 form {
-	display: flex;
-	flex-direction: column;
-	margin: 2rem 1rem;
-	width: 25rem;
+    display: flex;
+    flex-direction: column;
+    margin: 2rem 1rem;
+    width: 25rem;
 }
 
 input {
-	background-color: transparent;
-	border: currentColor solid 3px;
-	border-radius: .5rem;
-	color: var(--text-color);
-	margin-bottom: .8rem;
-	outline: none;
-	padding: .2rem .5rem;
-	transition: border-color .2s;
+    background-color: transparent;
+    border: currentColor solid 3px;
+    border-radius: .5rem;
+    color: var(--text-color);
+    margin-bottom: .8rem;
+    font-size: .8em;
+    outline: none;
+    padding: .4rem .5rem;
+    transition: border-color .2s;
 }
 
 input:focus {
-	border-color: var(--focus-color);
+    border-color: var(--focus-color);
 }
 
 input:-webkit-autofill,
 input:-webkit-autofill:focus {
-	--infinite-transition: 60000000s 0s;
-	transition: background-color var(--infinite-transition), color var(--infinite-transition), border-color var(--infinite-transition);
+    --infinite-transition: 60000000s 0s;
+    transition: background-color var(--infinite-transition), color var(--infinite-transition), border-color var(--infinite-transition);
 }
 
 input[data-autocompleted] {
-	background-color: transparent !important;
+    background-color: transparent !important;
+}
+
+button {
+    background-color: var(--button-color);
+    border: none;
+    border-radius: .5rem;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 1.2em;
+    margin-top: 1.5rem;
+    outline: none;
+    padding: .2rem .5rem;
+    transition: background-color .2s;
+}
+
+button:hover {
+    background-color: var(--button-hover-color);
 }

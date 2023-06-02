@@ -25,7 +25,8 @@ class DatabaseConnection {
 			$port = env('DB_PORT');
 			$database = env('DB_NAME');
 
-			$this->database = new PDO("mysql:host=$host;port=$port;dbname=$database", $username, $password,
+			$dsn = "mysql:host=$host;port=$port;dbname=$database";
+			$this->database = new PDO($dsn, $username, $password,
 				[
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING,
 					PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,

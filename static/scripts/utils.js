@@ -14,3 +14,13 @@ export async function sha512(str) {
 	// Convert to hex string
 	return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
+
+/**
+ * Generate a random salt
+ * @returns {Promise<string>}
+ */
+export async function randomSalt() {
+	const crypto = await window.crypto;
+	const salt = await crypto.getRandomValues(new Uint8Array(16));
+	return Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
+}
