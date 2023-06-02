@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
-use function App\utils\load_env;
-
 require __DIR__ . '/vendor/autoload.php';
+
+use function App\Utils\load_env;
 
 load_env();

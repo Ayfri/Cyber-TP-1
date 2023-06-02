@@ -1,10 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace App\services;
+namespace App\Services;
 
-use App\repositories\UserRepository;
+use App\Repositories\UserRepository;
 use JetBrains\PhpStorm\NoReturn;
+use function preg_match;
 
 class AuthService extends Service {
 	private UserRepository $userRepository;
@@ -20,7 +21,7 @@ class AuthService extends Service {
 		$password = $this->getRequiredParam('password');
 		$confirm_password = $this->getRequiredParam('confirmPassword');
 
-		if (!$this->isHashed($password) || !$this->isHashed($confirm_password)) {
+		if (!self::isHashed($password) || !self::isHashed($confirm_password)) {
 			$this->sendError('Passwords must be hashed.');
 		}
 
@@ -32,7 +33,7 @@ class AuthService extends Service {
 		$this->sendSuccess();
 	}
 
-	private function isHashed(string $password): bool {
+	private static function isHashed(string $password): bool {
 		return preg_match('/^[0-9a-f]{128}$/', $password) === 1;
 	}
 }

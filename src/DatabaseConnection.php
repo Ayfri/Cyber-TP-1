@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App;
 
 use PDO;
-use function App\utils\env;
+use function App\Utils\env;
 
 /**
  * Class DatabaseConnection is a class that represents a database connection

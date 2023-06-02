@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\models;
+namespace App\Models;
 
 class Account {
 	public string $guid;

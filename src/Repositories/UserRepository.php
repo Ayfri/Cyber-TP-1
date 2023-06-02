@@ -1,21 +1,21 @@
 <?php
 declare(strict_types=1);
 
-namespace App\repositories;
+namespace App\Repositories;
 
-use App\models\User;
+use App\Models\User;
 use PDO;
 
 class UserRepository {
-    use Repository;
+	use Repository;
 
-    public function createUser(string $guid, string $email): void {
-        $this->db->prepare(<<<SQL
+	public function createUser(string $guid, string $email): void {
+		$this->db->prepare(<<<SQL
             INSERT INTO users (guid, email)
             VALUES (:guid, :email)
         SQL
-        )->execute(compact('guid', 'email'));
-    }
+		)->execute(compact('guid', 'email'));
+	}
 
 	public function getUserByGUID(string $guid): ?User {
 		$stmt = $this->db->prepare(<<<SQL

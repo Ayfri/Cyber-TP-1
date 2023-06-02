@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\repositories;
+namespace App\Repositories;
 
 class AccountRepository {
 	use Repository;
@@ -9,7 +9,8 @@ class AccountRepository {
 	public function createAccount(string $guid, string $password, string $salt): void {
 		$statement = $this->db->prepare(<<<SQL
 			INSERT INTO accounts VALUES (guid, password, salt)
-		SQL);
+		SQL
+		);
 		$statement->execute(compact('guid', 'password', 'salt'));
 	}
 }
