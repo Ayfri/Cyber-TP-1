@@ -44,11 +44,16 @@ class AuthService extends Service {
 				$this->sendError('Passwords do not match.');
 			}
 
+			$current_user = $this->userRepository->getUserByEmail($email);
+			if ($current_user !== null) {
+				$this->sendError('User already exists.', 409);
+			}
+
 			$guid = uuid();
 
 			$this->userRepository->createUser($guid, $email);
 			$this->accountRepository->createAccount($guid, $password, $salt);
-			$this->sendSuccess();
+			$this->sendSuccess(201);
 		}
 	}
 

@@ -61,8 +61,8 @@ abstract class Service {
 	}
 
 	#[NoReturn]
-	protected function sendError(string $message): void {
-		http_response_code(400);
+	protected function sendError(string $message, int $code = 400): void {
+		http_response_code($code);
 		echo $message;
 		exit();
 	}
@@ -95,8 +95,8 @@ abstract class Service {
 	}
 
 	#[NoReturn]
-	protected function sendSuccess(): void {
-		http_response_code(200);
+	protected function sendSuccess(int $code = 200): void {
+		http_response_code($code);
 		exit();
 	}
 }

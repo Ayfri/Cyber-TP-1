@@ -17,6 +17,18 @@ class UserRepository {
 		)->execute(compact('guid', 'email'));
 	}
 
+	public function getUserByEmail(string $email): ?User {
+		$stmt = $this->db->prepare(<<<SQL
+			SELECT guid, email
+			FROM users
+			WHERE email = :email
+		SQL
+		);
+		$stmt->execute(compact('email'));
+		$stmt->setFetchMode(PDO::FETCH_CLASS, User::class);
+		return $stmt->fetch();
+	}
+
 	public function getUserByGUID(string $guid): ?User {
 		$stmt = $this->db->prepare(<<<SQL
 			SELECT guid, email
