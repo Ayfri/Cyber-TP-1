@@ -40,6 +40,9 @@ abstract class Service {
 		if (!isset($_SESSION['user'])) {
 			$this->redirect('/login');
 		}
+
+		global $user;
+		$user = $_SESSION['user'];
 	}
 
 	#[NoReturn]

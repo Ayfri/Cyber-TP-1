@@ -87,6 +87,11 @@ class AuthService extends Service {
 			$_SESSION['user'] = $user;
 			$this->sendSuccess();
 		}
+
+		if (static::onRoutePost('/logout')) {
+			unset($_SESSION['user']);
+			$this->sendSuccess();
+		}
 	}
 
 	private static function isHashed(string $password): bool {

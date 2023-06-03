@@ -13,7 +13,11 @@ load_env();
 session_start();
 
 $auth_service = new App\Services\AuthService();
-
 if ($auth_service::isHandledRoute()) {
 	$auth_service->handle();
+}
+
+$content_service = new App\Services\ContentService();
+if ($content_service::isHandledRoute()) {
+	$content_service->handle();
 }
