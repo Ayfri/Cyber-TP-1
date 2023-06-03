@@ -30,10 +30,10 @@ class AuthService extends Service {
 	#[NoReturn]
 	protected function handleRoutes(): void {
 		$this->renderOnGet('/register');
-		if ($this->onRoutePost('register')) {
+		if (static::onRoutePost('/register')) {
 			$email = $this->getRequiredParam('email');
 			$password = $this->getRequiredParam('password');
-			$confirm_password = $this->getRequiredParam('confirmPassword');
+			$confirm_password = $this->getRequiredParam('confirm-password');
 			$salt = $this->getRequiredParam('salt');
 
 			if (!self::isHashed($password) || !self::isHashed($confirm_password)) {

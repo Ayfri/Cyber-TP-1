@@ -5,7 +5,7 @@ $js = ['register.js'];
 ob_start();
 ?>
 	<h1>Register</h1>
-	<form action="/login" id="register-form" method="post">
+	<form action="/register" id="register-form" method="post">
 		<label for="email">Email</label>
 		<input
 			autocomplete='email'

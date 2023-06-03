@@ -7,12 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	const form = document.querySelector('#register-form');
 
 	form.addEventListener('submit', async e => {
+		e.preventDefault();
 		const password = form.querySelector('#password').value;
 		const confirmPassword = form.querySelector('#confirm-password').value;
 
 		if (password !== confirmPassword) {
-			e.preventDefault();
 			alert('Passwords do not match');
+			return;
 		}
 
 		const salt = await randomSalt();
@@ -22,16 +23,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		const formData = new FormData(form);
 		formData.set('password', hashedPassword);
 		formData.set('confirm-password', hashedConfirmPassword);
+		formData.set('salt', salt);
 
 		const response = await fetch('/register', {
 			method: 'POST',
 			body: formData
 		});
 
-		if (response.status === 200) {
-			console.log('Registered successfully');
-			window.location.href = '/login';
-			history.replaceState(null, null, '/login');
+		if (response.ok) {
+			console.log(response);
+			// window.location.href = '/login';
+		} else {
+			alert(await response.text());
 		}
 	});
 });

@@ -5,6 +5,7 @@ namespace App\Services;
 
 use JetBrains\PhpStorm\NoReturn;
 use RuntimeException;
+use function App\Utils\log_message;
 
 abstract class Service {
 	protected array $data = [];
@@ -21,8 +22,13 @@ abstract class Service {
 
 	abstract public static function routes(): array;
 
+	public static function onRoutePost(string $route): bool {
+		return $_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === $route;
+	}
+
 	#[NoReturn]
 	public function handle(): void {
+		log_message('Handling request from service: ' . basename(static::class));
 		if ($this->requiresAuth) {
 			$this->checkAuth();
 		}
@@ -39,15 +45,11 @@ abstract class Service {
 	#[NoReturn]
 	protected function redirect(string $url): void {
 		header("Location: $url");
-		exit;
+		exit();
 	}
 
 	#[NoReturn]
 	abstract protected function handleRoutes(): void;
-
-	public function onRoutePost(string $route): bool {
-		return $_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === $route;
-	}
 
 	protected function getRequiredParam(string $param, ?string $error = null): string {
 		$error_message = $error ?? "Missing required parameter '$param'.";
@@ -67,12 +69,12 @@ abstract class Service {
 
 	protected function renderOnGet(string $route, ?string $view = null, array $data = []): void {
 		$view ??= $route;
-		if ($this->onRouteGet($route)) {
+		if (static::onRouteGet($route)) {
 			$this->render($view, $data);
 		}
 	}
 
-	public function onRouteGet(string $route): bool {
+	public static function onRouteGet(string $route): bool {
 		return $_SERVER['REQUEST_METHOD'] === 'GET' && $_SERVER['REQUEST_URI'] === $route;
 	}
 
