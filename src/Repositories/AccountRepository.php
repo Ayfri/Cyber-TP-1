@@ -8,7 +8,7 @@ class AccountRepository {
 
 	public function createAccount(string $guid, string $password, string $salt): void {
 		$statement = $this->db->prepare(<<<SQL
-			INSERT INTO accounts VALUES (guid, password, salt)
+			INSERT INTO accounts VALUES (:guid, :password, :salt)
 		SQL
 		);
 		$statement->execute(compact('guid', 'password', 'salt'));
