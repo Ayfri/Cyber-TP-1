@@ -7,9 +7,9 @@ use App\Repositories\AccountRepository;
 use App\Repositories\UserRepository;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
+use function App\Utils\is_hashed;
 use function App\Utils\random_salt;
 use function App\Utils\uuid;
-use function preg_match;
 
 class AuthService extends Service {
 	private AccountRepository $accountRepository;
@@ -38,7 +38,7 @@ class AuthService extends Service {
 			$password = $this->getRequiredParam('password');
 			$confirm_password = $this->getRequiredParam('confirm-password');
 
-			if (!self::isHashed($password) || !self::isHashed($confirm_password)) {
+			if (!is_hashed($password) || !is_hashed($confirm_password)) {
 				$this->sendError('Passwords must be hashed.');
 			}
 
@@ -65,7 +65,7 @@ class AuthService extends Service {
 			$email = $this->getRequiredParam('email');
 			$password = $this->getRequiredParam('password');
 
-			if (!self::isHashed($password)) {
+			if (!is_hashed($password)) {
 				$this->sendError('Password must be hashed.');
 			}
 
@@ -92,9 +92,5 @@ class AuthService extends Service {
 			unset($_SESSION['user']);
 			$this->sendSuccess();
 		}
-	}
-
-	private static function isHashed(string $password): bool {
-		return preg_match('/^[0-9a-f]{128}$/', $password) === 1;
 	}
 }

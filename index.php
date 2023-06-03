@@ -21,3 +21,8 @@ $content_service = new App\Services\ContentService();
 if ($content_service::isHandledRoute()) {
 	$content_service->handle();
 }
+
+$manage_account_service = new App\Services\ManageAccountService();
+if ($manage_account_service::isHandledRoute()) {
+	$manage_account_service->handle();
+}

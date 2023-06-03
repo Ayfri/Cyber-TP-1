@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Utils;
 
 use Exception;
+use function preg_match;
 
 /**
  * @throws Exception
@@ -36,4 +37,11 @@ function uuid(): string {
  */
 function random_salt(): string {
 	return bin2hex(random_bytes(64));
+}
+
+/**
+ * Returns true if the given string is a hashed password.
+ */
+function is_hashed(string $password): bool {
+	return preg_match('/^[0-9a-f]{128}$/', $password) === 1;
 }

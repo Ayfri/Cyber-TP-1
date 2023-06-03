@@ -28,4 +28,14 @@ class AccountRepository {
 		$statement->setFetchMode(PDO::FETCH_CLASS, Account::class);
 		return $statement->fetch() ?: null;
 	}
+
+	public function updatePassword(string $guid, string $hashed_new_password): void {
+		$statement = $this->db->prepare(<<<SQL
+			UPDATE accounts
+			SET password = :hashed_new_password
+			WHERE guid = :guid
+		SQL
+		);
+		$statement->execute(compact('guid', 'hashed_new_password'));
+	}
 }

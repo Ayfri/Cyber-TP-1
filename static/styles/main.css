@@ -80,7 +80,7 @@ a {
 	transition: text-decoration .2s;
 }
 
-a::before {
+a::before:not(.no-hover) {
 	background: currentColor;
 	bottom: 0;
 	content: '';
