@@ -4,6 +4,7 @@ declare(strict_types=1);
 require 'vendor/autoload.php';
 require_once __DIR__ . '/src/Utils/env.php';
 require_once __DIR__ . '/src/Utils/hash.php';
+require_once __DIR__ . '/src/Utils/logs.php';
 
 use function App\Utils\load_env;
 
