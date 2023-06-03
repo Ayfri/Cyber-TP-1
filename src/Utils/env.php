@@ -12,10 +12,5 @@ function load_env(): void {
 }
 
 function env(string $key, string $default = ''): string {
-	$value = $_ENV["CYBER_$key"];
-	if ($value === false) {
-		return $default;
-	}
-
-	return $value;
+	return $_ENV["CYBER_$key"] ?: $default;
 }

@@ -10,6 +10,8 @@ use function App\Utils\load_env;
 
 load_env();
 
+session_start();
+
 $auth_service = new App\Services\AuthService();
 
 if ($auth_service::isHandledRoute()) {

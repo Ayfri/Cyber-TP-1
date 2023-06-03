@@ -7,6 +7,7 @@ use App\Repositories\AccountRepository;
 use App\Repositories\UserRepository;
 use Exception;
 use JetBrains\PhpStorm\NoReturn;
+use function App\Utils\random_salt;
 use function App\Utils\uuid;
 use function preg_match;
 
@@ -30,11 +31,12 @@ class AuthService extends Service {
 	#[NoReturn]
 	protected function handleRoutes(): void {
 		$this->renderOnGet('/register');
+		$this->renderOnGet('/login');
+
 		if (static::onRoutePost('/register')) {
 			$email = $this->getRequiredParam('email');
 			$password = $this->getRequiredParam('password');
 			$confirm_password = $this->getRequiredParam('confirm-password');
-			$salt = $this->getRequiredParam('salt');
 
 			if (!self::isHashed($password) || !self::isHashed($confirm_password)) {
 				$this->sendError('Passwords must be hashed.');
@@ -50,10 +52,39 @@ class AuthService extends Service {
 			}
 
 			$guid = uuid();
+			$salt = random_salt();
+
+			$hashed_password = hash('sha512', $password . $salt);
 
 			$this->userRepository->createUser($guid, $email);
-			$this->accountRepository->createAccount($guid, $password, $salt);
+			$this->accountRepository->createAccount($guid, $hashed_password, $salt);
 			$this->sendSuccess(201);
+		}
+
+		if (static::onRoutePost('/login')) {
+			$email = $this->getRequiredParam('email');
+			$password = $this->getRequiredParam('password');
+
+			if (!self::isHashed($password)) {
+				$this->sendError('Password must be hashed.');
+			}
+
+			$user = $this->userRepository->getUserByEmail($email);
+			if ($user === null) {
+				$this->sendError('User does not exist.', 404);
+			}
+
+			$account = $this->accountRepository->getAccountByGUID($user->guid);
+			if ($account === null) {
+				$this->sendError('Account does not exist.', 404);
+			}
+
+			if ($account->password !== $password) {
+				$this->sendError('Incorrect password.', 401);
+			}
+
+			$_SESSION['user'] = $user;
+			$this->sendSuccess();
 		}
 	}
 

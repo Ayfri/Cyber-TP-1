@@ -26,7 +26,7 @@ class UserRepository {
 		);
 		$stmt->execute(compact('email'));
 		$stmt->setFetchMode(PDO::FETCH_CLASS, User::class);
-		return $stmt->fetch();
+		return $stmt->fetch() ?: null;
 	}
 
 	public function getUserByGUID(string $guid): ?User {
@@ -38,6 +38,6 @@ class UserRepository {
 		);
 		$stmt->execute(compact('guid'));
 		$stmt->setFetchMode(PDO::FETCH_CLASS, User::class);
-		return $stmt->fetch();
+		return $stmt->fetch() ?: null;
 	}
 }

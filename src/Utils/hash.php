@@ -29,3 +29,11 @@ function uuid(): string {
 		random_int(0, 0xffff), random_int(0, 0xffff), random_int(0, 0xffff)
 	);
 }
+
+/**
+ * Returns a random salt of 128 characters.
+ * @throws Exception
+ */
+function random_salt(): string {
+	return bin2hex(random_bytes(64));
+}

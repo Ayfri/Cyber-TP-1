@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Models\Account;
+
 class AccountRepository {
 	use Repository;
 
@@ -12,5 +14,16 @@ class AccountRepository {
 		SQL
 		);
 		$statement->execute(compact('guid', 'password', 'salt'));
+	}
+
+	public function getAccountByGUID(string $guid): ?Account {
+		$statement = $this->db->prepare(<<<SQL
+			SELECT guid, password, salt
+			FROM accounts
+			WHERE guid = :guid
+		SQL
+		);
+		$statement->execute(compact('guid'));
+		return $statement->fetch() ?: null;
 	}
 }

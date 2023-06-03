@@ -1,4 +1,4 @@
-import {randomSalt, sha512} from "./utils.js";
+import {sha512} from "./utils.js";
 
 document.addEventListener('DOMContentLoaded', () => {
 	/**
@@ -16,23 +16,21 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
-		const salt = await randomSalt();
-		const hashedPassword = await sha512(salt + password);
-		const hashedConfirmPassword = await sha512(salt + confirmPassword);
+		const hashedPassword = await sha512(password);
+		const hashedConfirmPassword = await sha512(confirmPassword);
 
 		const formData = new FormData(form);
 		formData.set('password', hashedPassword);
 		formData.set('confirm-password', hashedConfirmPassword);
-		formData.set('salt', salt);
 
 		const response = await fetch('/register', {
 			method: 'POST',
+			headers: {},
 			body: formData
 		});
 
 		if (response.ok) {
-			console.log(response);
-			// window.location.href = '/login';
+			window.location.href = '/login';
 		} else {
 			alert(await response.text());
 		}
