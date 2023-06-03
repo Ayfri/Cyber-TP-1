@@ -19,7 +19,7 @@ class UserRepository {
 
 	public function getUserByEmail(string $email): ?User {
 		$stmt = $this->db->prepare(<<<SQL
-			SELECT guid, email
+			SELECT email, guid
 			FROM users
 			WHERE email = :email
 		SQL
@@ -31,7 +31,7 @@ class UserRepository {
 
 	public function getUserByGUID(string $guid): ?User {
 		$stmt = $this->db->prepare(<<<SQL
-			SELECT guid, email
+			SELECT email, guid
 			FROM users
 			WHERE guid = :guid
 		SQL

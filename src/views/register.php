@@ -39,5 +39,8 @@ ob_start();
 		>
 		<button type="submit">Login</button>
 	</form>
+	<p>
+		Already have an account? <a href="/login">Login</a>
+	</p>
 <?php
 require_once 'layout.php';

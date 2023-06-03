@@ -4,32 +4,23 @@ document.addEventListener('DOMContentLoaded', () => {
 	/**
 	 * @type {HTMLFormElement}
 	 */
-	const form = document.querySelector('#register-form');
+	const form = document.querySelector('#login-form');
 
 	form.addEventListener('submit', async e => {
 		e.preventDefault();
 		const password = form.querySelector('#password').value;
-		const confirmPassword = form.querySelector('#confirm-password').value;
-
-		if (password !== confirmPassword) {
-			alert('Passwords do not match');
-			return;
-		}
-
 		const hashedPassword = await sha512(password);
-		const hashedConfirmPassword = await sha512(confirmPassword);
 
 		const formData = new FormData(form);
 		formData.set('password', hashedPassword);
-		formData.set('confirm-password', hashedConfirmPassword);
 
-		const response = await fetch('/register', {
+		const response = await fetch('/login', {
 			method: 'POST',
 			body: formData
 		});
 
 		if (response.ok) {
-			window.location.href = '/login';
+			window.location.href = '/';
 		} else {
 			alert(await response.text());
 		}

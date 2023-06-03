@@ -79,7 +79,8 @@ class AuthService extends Service {
 				$this->sendError('Account does not exist.', 404);
 			}
 
-			if ($account->password !== $password) {
+			$hashed_password = hash('sha512', $password . $account->salt);
+			if ($account->password !== $hashed_password) {
 				$this->sendError('Incorrect password.', 401);
 			}
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Models\Account;
+use PDO;
 
 class AccountRepository {
 	use Repository;
@@ -24,6 +25,7 @@ class AccountRepository {
 		SQL
 		);
 		$statement->execute(compact('guid'));
+		$statement->setFetchMode(PDO::FETCH_CLASS, Account::class);
 		return $statement->fetch() ?: null;
 	}
 }
