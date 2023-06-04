@@ -91,9 +91,9 @@ abstract class Service {
 	}
 
 	#[NoReturn]
-	protected function sendResponse(array $data): void {
-		header('Content-Type: application/json');
-		echo json_encode($data, JSON_THROW_ON_ERROR);
+	protected function sendResponse(string $response, int $code = 200): void {
+		http_response_code($code);
+		echo $response;
 		exit();
 	}
 

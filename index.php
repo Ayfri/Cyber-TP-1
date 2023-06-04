@@ -26,3 +26,8 @@ $manage_account_service = new App\Services\ManageAccountService();
 if ($manage_account_service::isHandledRoute()) {
 	$manage_account_service->handle();
 }
+
+$otp_service = new App\Services\OTPService();
+if ($otp_service::isHandledRoute()) {
+	$otp_service->handle();
+}
