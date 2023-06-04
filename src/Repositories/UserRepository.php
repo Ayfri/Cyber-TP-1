@@ -17,6 +17,14 @@ class UserRepository {
 		)->execute(compact('guid', 'email'));
 	}
 
+	public function deleteUser(string $guid): void {
+		$this->db->prepare(<<<SQL
+			DELETE FROM users
+			WHERE guid = :guid
+		SQL
+		)->execute(compact('guid'));
+	}
+
 	public function getUserByEmail(string $email): ?User {
 		$stmt = $this->db->prepare(<<<SQL
 			SELECT email, guid

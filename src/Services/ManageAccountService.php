@@ -5,16 +5,19 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Repositories\AccountRepository;
+use App\Repositories\UserRepository;
 use JetBrains\PhpStorm\NoReturn;
 use function App\Utils\is_hashed;
 
 class ManageAccountService extends Service {
 
 	private AccountRepository $accountRepository;
+	private UserRepository $userRepository;
 
 	public function __construct() {
 		parent::__construct();
 		$this->accountRepository = new AccountRepository();
+		$this->userRepository = new UserRepository();
 	}
 
 	public static function routes(): array {
@@ -54,6 +57,28 @@ class ManageAccountService extends Service {
 			$hashed_new_password = hash('sha512', $new_password . $account->salt);
 			$this->accountRepository->updatePassword($account->guid, $hashed_new_password);
 			$this->redirect('/');
+		}
+
+		if (static::onRoutePost('/delete-account')) {
+			$current_password = $this->getRequiredParam('password');
+			if (!is_hashed($current_password)) {
+				$this->sendError('Passwords must be hashed.');
+			}
+
+			/** @var User $user */
+			$user = $_SESSION['user'];
+			$account = $this->accountRepository->getAccountByGUID($user->guid);
+			if ($account === null) {
+				$this->sendError('Account not found.', 404);
+			}
+
+			$hashed_password = hash('sha512', $current_password . $account->salt);
+			if ($hashed_password !== $account->password) {
+				$this->sendError('Incorrect password.', 401);
+			}
+
+			unset($_SESSION['user']);
+			$this->userRepository->deleteUser($account->guid);
 		}
 	}
 }

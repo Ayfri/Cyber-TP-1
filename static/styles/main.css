@@ -2,11 +2,13 @@
 	--button-color: var(--focus-color);
 	--button-hover-color: #a56dff;
 	--focus-color: #9155ef;
+	--red-button-color: #ff4d4d;
+	--red-button-hover-color: #ff6565;
 	--text-color: white;
 }
 
 * {
-	font-family: "JetBrains Mono", "Lucida Console", Consolas, serif;
+	font-family: "JetBrains Mono", "Lucida Console", Consolas, monospace;
 	margin: 0;
 }
 
@@ -73,6 +75,14 @@ button:hover {
 	background-color: var(--button-hover-color);
 }
 
+button.red {
+	background-color: var(--red-button-color);
+}
+
+button.red:hover {
+	background-color: var(--red-button-hover-color);
+}
+
 a {
 	color: var(--button-hover-color);
 	position: relative;
@@ -80,7 +90,7 @@ a {
 	transition: text-decoration .2s;
 }
 
-a::before:not(.no-hover) {
+a:not(.no-hover)::before {
 	background: currentColor;
 	bottom: 0;
 	content: '';

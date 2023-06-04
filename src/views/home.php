@@ -14,5 +14,8 @@ global $user;
 	</a>
 
 	<button id='disconnect'>Disconnect</button>
+	<a href='/delete-account' class='no-hover'>
+		<button class='red'>Delete account</button>
+	</a>
 <?php
 require_once 'layout.php';
