@@ -20,7 +20,7 @@ class OTPService extends Service {
 	}
 
 	public static function routes(): array {
-		return ['/otp', '/get-otp'];
+		return ['/otp', '/get-otp', '/otp-verify'];
 	}
 
 	/**

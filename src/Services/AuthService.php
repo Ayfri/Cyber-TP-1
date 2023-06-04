@@ -60,8 +60,8 @@ class AuthService extends Service {
 			$hashed_password = hash('sha512', $password . $salt);
 
 			$this->userRepository->createUser($guid, $email);
-			$this->accountRepository->createAccount($guid, $hashed_password, $salt);
-			$this->sendSuccess(201);
+			$this->accountRepository->createTempAccount($guid, $hashed_password, $salt);
+			$this->redirect('/verify-otp');
 		}
 
 		if (static::onRoutePost('/login')) {
