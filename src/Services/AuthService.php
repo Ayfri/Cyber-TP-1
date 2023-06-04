@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Repositories\AccountAttemptRepository;
 use App\Repositories\AccountRepository;
 use App\Repositories\UserRepository;
 use Exception;
@@ -12,12 +13,14 @@ use function App\Utils\random_salt;
 use function App\Utils\uuid;
 
 class AuthService extends Service {
+	private AccountAttemptRepository $accountAttemptRepository;
 	private AccountRepository $accountRepository;
 	private UserRepository $userRepository;
 
 	public function __construct() {
 		parent::__construct(false);
 		$this->accountRepository = new AccountRepository();
+		$this->accountAttemptRepository = new AccountAttemptRepository();
 		$this->userRepository = new UserRepository();
 	}
 
@@ -74,6 +77,11 @@ class AuthService extends Service {
 				$this->sendError('User does not exist.', 404);
 			}
 
+			$attempts = $this->accountAttemptRepository->getAccountAttempts($user->guid, 15);
+			if (count($attempts) >= 3) {
+				$this->sendError('Too many login attempts, please wait.', 429);
+			}
+
 			$account = $this->accountRepository->getAccountByGUID($user->guid);
 			if ($account === null) {
 				$this->sendError('Account does not exist.', 404);
@@ -81,8 +89,11 @@ class AuthService extends Service {
 
 			$hashed_password = hash('sha512', $password . $account->salt);
 			if ($account->password !== $hashed_password) {
+				$this->accountAttemptRepository->createAccountAttempt($account->guid);
 				$this->sendError('Incorrect password.', 401);
 			}
+
+			$this->accountAttemptRepository->deleteAccountAttempts($account->guid);
 
 			$_SESSION['user'] = $user;
 			$this->sendSuccess();
