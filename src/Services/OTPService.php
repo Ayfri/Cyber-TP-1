@@ -20,7 +20,7 @@ class OTPService extends Service {
 	}
 
 	public static function routes(): array {
-		return ['/otp'];
+		return ['/otp', '/get-otp'];
 	}
 
 	/**
@@ -32,7 +32,7 @@ class OTPService extends Service {
 		$user = $_SESSION['user'];
 		$this->renderOnGet('/otp', 'otp', ['otp' => $this->getOTPForUser($user)]);
 
-		if (static::onRoutePost('/otp')) {
+		if (static::onRouteGet('/get-otp')) {
 			$otp = $this->getOTPForUser($user);
 			$this->sendResponse($otp);
 		}
