@@ -22,7 +22,7 @@ class OTPService extends Service {
 	 */
 	public static function askForOTP(string $guid, string $auth, string $callback): never {
 		$_SESSION['guid'] = $guid;
-		$_SESSION['auth'] = $auth;
+		$_SESSION['type'] = $auth;
 		$_SESSION['callback'] = $callback;
 		Service::redirect('/otp-verify');
 	}
@@ -35,8 +35,8 @@ class OTPService extends Service {
 	 * @throws Exception
 	 */
 	protected function handleRoutes(): void {
-		$user_guid = $_SESSION['user']->guid ?? $_SESSION['guid'];
-		$is_temporary = isset($_SESSION['auth']) && $_SESSION['auth'] === 'register';
+		$is_temporary = isset($_SESSION['type']) && $_SESSION['type'] === 'register';
+		$user_guid = $is_temporary ? $_SESSION['guid'] : $_SESSION['user']->guid;
 
 		if (static::onRouteGet('/otp')) {
 			if ($user_guid === null) {
@@ -52,13 +52,13 @@ class OTPService extends Service {
 
 		if (static::onRouteGet('/get-otp')) {
 			$otp = $this->getOTPForUser($user_guid);
-			$this->sendResponse($otp);
+			Service::sendResponse($otp);
 		}
 
 		if (static::onRoutePost('/otp-verify')) {
 			$otp = (int)$this->getRequiredParam('otp');
 
-			if (!isset($_SESSION['guid'], $_SESSION['auth'], $_SESSION['callback'])) {
+			if (!isset($_SESSION['guid'], $_SESSION['type'], $_SESSION['callback'])) {
 				Service::sendError('OTP not found.', 404);
 			}
 
@@ -69,10 +69,10 @@ class OTPService extends Service {
 			}
 
 			$callback = $_SESSION['callback'];
-			$callback($guid, $_SESSION['auth']);
-			unset($_SESSION['auth'], $_SESSION['callback'], $_SESSION['guid']);
+			$callback($guid, $_SESSION['type']);
+			unset($_SESSION['type'], $_SESSION['callback'], $_SESSION['guid']);
 			$this->accountOTPRepository->deleteOTP($guid);
-			$this->sendSuccess();
+			Service::sendSuccess();
 		}
 
 		Service::sendError('Route not found.', 404);

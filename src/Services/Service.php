@@ -3,15 +3,18 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Repositories\UserRepository;
 use RuntimeException;
 use function App\Utils\log_message;
 
 abstract class Service {
 	protected array $data = [];
 	protected bool $requiresAuth;
+	protected UserRepository $userRepository;
 
 	public function __construct(bool $requires_auth = true) {
 		$this->requiresAuth = $requires_auth;
+		$this->userRepository = new UserRepository();
 	}
 
 	public static function isHandledRoute(): bool {
@@ -25,17 +28,34 @@ abstract class Service {
 		return $_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === $route;
 	}
 
+	protected static function sendResponse(string $response, int $code = 200): never {
+		http_response_code($code);
+		echo $response;
+		exit();
+	}
+
+	protected static function sendSuccess(int $code = 200): never {
+		http_response_code($code);
+		exit();
+	}
+
 	public function handle(): never {
 		log_message('Handling request from service: ' . basename(static::class));
 		if ($this->requiresAuth) {
-			static::checkAuth();
+			$this->checkAuth();
 		}
 		$this->data = [...$_POST, ...$_GET];
 		$this->handleRoutes();
 	}
 
-	private static function checkAuth(): void {
-		if (!isset($_SESSION['user'])) {
+	private function checkAuth(): void {
+		$session_present = !isset($_SESSION['user']);
+		if ($session_present) {
+			static::redirect('/login');
+		}
+
+		$user_exists = $this->userRepository->getUserByGUID($_SESSION['user']->guid) !== null;
+		if (!$user_exists) {
 			static::redirect('/login');
 		}
 
@@ -53,7 +73,7 @@ abstract class Service {
 	protected function getRequiredParam(string $param, ?string $error = null): string {
 		$error_message = $error ?? "Missing required parameter '$param'.";
 		if (!isset($this->data[$param])) {
-			Service::sendError($error_message);
+			static::sendError($error_message);
 		}
 
 		return $this->data[$param];
@@ -83,17 +103,6 @@ abstract class Service {
 		}
 		extract($data);
 		require_once $view_path;
-		exit();
-	}
-
-	protected function sendResponse(string $response, int $code = 200): never {
-		http_response_code($code);
-		echo $response;
-		exit();
-	}
-
-	protected function sendSuccess(int $code = 200): never {
-		http_response_code($code);
 		exit();
 	}
 }

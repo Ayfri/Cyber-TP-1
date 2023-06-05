@@ -15,7 +15,6 @@ use function App\Utils\uuid;
 class AuthService extends Service {
 	private AccountAttemptRepository $accountAttemptRepository;
 	private AccountRepository $accountRepository;
-	private UserRepository $userRepository;
 
 	public function __construct() {
 		parent::__construct(false);
@@ -24,8 +23,8 @@ class AuthService extends Service {
 		$this->userRepository = new UserRepository();
 	}
 
-	public static function onOTPValidationCallback(string $guid, string $auth): void {
-		if ($auth === 'register') {
+	public static function onOTPValidationCallback(string $guid, string $type): void {
+		if ($type === 'register') {
 			$account_repository = new AccountRepository();
 			$account = $account_repository->getTempAccountByGUID($guid);
 			if ($account === null) {
@@ -110,12 +109,12 @@ class AuthService extends Service {
 			$this->accountAttemptRepository->deleteAccountAttempts($account->guid);
 
 			$_SESSION['user'] = $user;
-			$this->sendSuccess();
+			Service::sendSuccess();
 		}
 
 		if (static::onRoutePost('/logout')) {
 			unset($_SESSION['user']);
-			$this->sendSuccess();
+			Service::sendSuccess();
 		}
 	}
 }

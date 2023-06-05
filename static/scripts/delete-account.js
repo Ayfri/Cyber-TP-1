@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			method: 'POST',
 			body: formData
 		});
+
 		if (response.ok) {
 			window.location.href = '/register';
 		} else {

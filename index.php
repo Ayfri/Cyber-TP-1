@@ -9,6 +9,8 @@ require_once __DIR__ . '/src/Utils/logs.php';
 use function App\Utils\load_env;
 
 load_env();
+date_default_timezone_set('Europe/Paris');
+
 session_start();
 
 global $otp_service;

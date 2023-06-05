@@ -8,16 +8,36 @@ use App\Repositories\AccountRepository;
 use App\Repositories\UserRepository;
 use JetBrains\PhpStorm\NoReturn;
 use function App\Utils\is_hashed;
+use function session_destroy;
 
 class ManageAccountService extends Service {
 
 	private AccountRepository $accountRepository;
-	private UserRepository $userRepository;
 
 	public function __construct() {
 		parent::__construct();
 		$this->accountRepository = new AccountRepository();
 		$this->userRepository = new UserRepository();
+	}
+
+	public static function onOTPValidationCallback(string $guid, string $type): void {
+		if ($type === 'change-password') {
+			$account_repository = new AccountRepository();
+			$account = $account_repository->getAccountByGUID($guid);
+			if ($account === null) {
+				Service::sendError('Account not found.', 404);
+			}
+
+			$account_repository->updatePassword($guid, $account->salt);
+			Service::redirect('/');
+		}
+
+		if ($type === 'delete-account') {
+			$user_repository = new UserRepository();
+			$user_repository->deleteUser($guid);
+			session_destroy();
+			Service::sendSuccess(204);
+		}
 	}
 
 	public static function routes(): array {
@@ -55,6 +75,9 @@ class ManageAccountService extends Service {
 			}
 
 			$hashed_new_password = hash('sha512', $new_password . $account->salt);
+
+			// TODO: Add OTP
+
 			$this->accountRepository->updatePassword($account->guid, $hashed_new_password);
 			Service::redirect('/');
 		}
@@ -76,6 +99,8 @@ class ManageAccountService extends Service {
 			if ($hashed_password !== $account->password) {
 				Service::sendError('Incorrect password.', 401);
 			}
+
+			// TODO: Add OTP
 
 			unset($_SESSION['user']);
 			$this->userRepository->deleteUser($account->guid);
