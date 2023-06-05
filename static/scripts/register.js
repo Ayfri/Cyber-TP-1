@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 
 		if (response.ok) {
-			window.location.href = '/login';
+			window.location.href = '/otp-verify';
 		} else {
 			alert(await response.text());
 		}

@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
+
 $title = 'Register';
 $js = ['register.js'];
+
 ob_start();
 ?>
 	<h1>Register</h1>
@@ -37,7 +39,7 @@ ob_start();
 			required
 			type='password'
 		>
-		<button type="submit">Login</button>
+		<button type="submit">Register</button>
 	</form>
 	<p>
 		Already have an account? <a href="/login">Login</a>

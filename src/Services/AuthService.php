@@ -13,6 +13,7 @@ use function App\Utils\random_salt;
 use function App\Utils\uuid;
 
 class AuthService extends Service {
+	private static OTPService $otpService;
 	private AccountAttemptRepository $accountAttemptRepository;
 	private AccountRepository $accountRepository;
 	private UserRepository $userRepository;
@@ -26,6 +27,13 @@ class AuthService extends Service {
 
 	public static function routes(): array {
 		return ['/login', '/register', '/logout'];
+	}
+
+	/**
+	 * @param OTPService $otpService
+	 */
+	public static function setOtpService(OTPService $otpService): void {
+		self::$otpService = $otpService;
 	}
 
 	/**
@@ -61,7 +69,12 @@ class AuthService extends Service {
 
 			$this->userRepository->createUser($guid, $email);
 			$this->accountRepository->createTempAccount($guid, $hashed_password, $salt);
-			$this->redirect('/verify-otp');
+
+			static::$otpService->askForOTP($guid, 'register', function () use ($guid) {
+				$this->accountRepository->transferTempAccount($guid);
+				$this->accountRepository->deleteTempAccount($guid);
+				$this->redirect('/login');
+			});
 		}
 
 		if (static::onRoutePost('/login')) {

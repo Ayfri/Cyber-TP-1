@@ -10,5 +10,7 @@ ob_start();
 		<?= $otp ?? '' ?>
 	</code>
 	<p class='hint'> Click to copy </p>
+
+	<p>You can close this page after copying the OTP.</p>
 <?php
 require_once 'layout.php';

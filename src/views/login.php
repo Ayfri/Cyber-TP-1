@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
+
 $title = 'Login';
 $js = ['login.js'];
+
 ob_start();
 ?>
 	<h1>Login</h1>
