@@ -13,7 +13,6 @@ use function App\Utils\random_salt;
 use function App\Utils\uuid;
 
 class AuthService extends Service {
-	private static OTPService $otpService;
 	private AccountAttemptRepository $accountAttemptRepository;
 	private AccountRepository $accountRepository;
 	private UserRepository $userRepository;
@@ -25,15 +24,21 @@ class AuthService extends Service {
 		$this->userRepository = new UserRepository();
 	}
 
-	public static function routes(): array {
-		return ['/login', '/register', '/logout'];
+	public static function onOTPValidationCallback(string $guid, string $auth): void {
+		if ($auth === 'register') {
+			$account_repository = new AccountRepository();
+			$account = $account_repository->getTempAccountByGUID($guid);
+			if ($account === null) {
+				Service::sendError('Account not found.', 404);
+			}
+
+			$account_repository->transferTempAccount($guid);
+			$account_repository->deleteTempAccount($guid);
+		}
 	}
 
-	/**
-	 * @param OTPService $otpService
-	 */
-	public static function setOtpService(OTPService $otpService): void {
-		self::$otpService = $otpService;
+	public static function routes(): array {
+		return ['/login', '/register', '/logout'];
 	}
 
 	/**
@@ -50,16 +55,16 @@ class AuthService extends Service {
 			$confirm_password = $this->getRequiredParam('confirm-password');
 
 			if (!is_hashed($password) || !is_hashed($confirm_password)) {
-				$this->sendError('Passwords must be hashed.');
+				Service::sendError('Passwords must be hashed.');
 			}
 
 			if ($password !== $confirm_password) {
-				$this->sendError('Passwords do not match.');
+				Service::sendError('Passwords do not match.');
 			}
 
 			$current_user = $this->userRepository->getUserByEmail($email);
 			if ($current_user !== null) {
-				$this->sendError('User already exists.', 409);
+				Service::sendError('User already exists.', 409);
 			}
 
 			$guid = uuid();
@@ -70,11 +75,7 @@ class AuthService extends Service {
 			$this->userRepository->createUser($guid, $email);
 			$this->accountRepository->createTempAccount($guid, $hashed_password, $salt);
 
-			static::$otpService->askForOTP($guid, 'register', function () use ($guid) {
-				$this->accountRepository->transferTempAccount($guid);
-				$this->accountRepository->deleteTempAccount($guid);
-				$this->redirect('/login');
-			});
+			OTPService::askForOTP($guid, 'register', 'App\Services\AuthService::onOTPValidationCallback');
 		}
 
 		if (static::onRoutePost('/login')) {
@@ -82,28 +83,28 @@ class AuthService extends Service {
 			$password = $this->getRequiredParam('password');
 
 			if (!is_hashed($password)) {
-				$this->sendError('Password must be hashed.');
+				Service::sendError('Password must be hashed.');
 			}
 
 			$user = $this->userRepository->getUserByEmail($email);
 			if ($user === null) {
-				$this->sendError('User does not exist.', 404);
+				Service::sendError('User does not exist.', 404);
 			}
 
 			$attempts = $this->accountAttemptRepository->getAccountAttempts($user->guid, 15);
 			if (count($attempts) >= 3) {
-				$this->sendError('Too many login attempts, please wait.', 429);
+				Service::sendError('Too many login attempts, please wait.', 429);
 			}
 
 			$account = $this->accountRepository->getAccountByGUID($user->guid);
 			if ($account === null) {
-				$this->sendError('Account does not exist.', 404);
+				Service::sendError('Account does not exist.', 404);
 			}
 
 			$hashed_password = hash('sha512', $password . $account->salt);
 			if ($account->password !== $hashed_password) {
 				$this->accountAttemptRepository->createAccountAttempt($account->guid);
-				$this->sendError('Incorrect password.', 401);
+				Service::sendError('Incorrect password.', 401);
 			}
 
 			$this->accountAttemptRepository->deleteAccountAttempts($account->guid);

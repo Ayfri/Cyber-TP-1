@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use JetBrains\PhpStorm\NoReturn;
 use RuntimeException;
 use function App\Utils\log_message;
 
@@ -26,45 +25,41 @@ abstract class Service {
 		return $_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === $route;
 	}
 
-	#[NoReturn]
-	public function handle(): void {
+	public function handle(): never {
 		log_message('Handling request from service: ' . basename(static::class));
 		if ($this->requiresAuth) {
-			$this->checkAuth();
+			static::checkAuth();
 		}
 		$this->data = [...$_POST, ...$_GET];
 		$this->handleRoutes();
 	}
 
-	private function checkAuth(): void {
+	private static function checkAuth(): void {
 		if (!isset($_SESSION['user'])) {
-			$this->redirect('/login');
+			static::redirect('/login');
 		}
 
 		global $user;
 		$user = $_SESSION['user'];
 	}
 
-	#[NoReturn]
-	protected function redirect(string $url): void {
+	protected static function redirect(string $url): never {
 		header("Location: $url");
 		exit();
 	}
 
-	#[NoReturn]
 	abstract protected function handleRoutes(): void;
 
 	protected function getRequiredParam(string $param, ?string $error = null): string {
 		$error_message = $error ?? "Missing required parameter '$param'.";
 		if (!isset($this->data[$param])) {
-			$this->sendError($error_message);
+			Service::sendError($error_message);
 		}
 
 		return $this->data[$param];
 	}
 
-	#[NoReturn]
-	protected function sendError(string $message, int $code = 400): void {
+	protected static function sendError(string $message, int $code = 400): never {
 		http_response_code($code);
 		echo $message;
 		exit();
@@ -88,17 +83,16 @@ abstract class Service {
 		}
 		extract($data);
 		require_once $view_path;
+		exit();
 	}
 
-	#[NoReturn]
-	protected function sendResponse(string $response, int $code = 200): void {
+	protected function sendResponse(string $response, int $code = 200): never {
 		http_response_code($code);
 		echo $response;
 		exit();
 	}
 
-	#[NoReturn]
-	protected function sendSuccess(int $code = 200): void {
+	protected function sendSuccess(int $code = 200): never {
 		http_response_code($code);
 		exit();
 	}

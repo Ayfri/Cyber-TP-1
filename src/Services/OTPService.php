@@ -3,14 +3,11 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Repositories\AccountOTPRepository;
 use App\Repositories\AccountRepository;
 use Exception;
-use JetBrains\PhpStorm\NoReturn;
 
 class OTPService extends Service {
-	private static array $otpCache = [];
 	private AccountOTPRepository $accountOTPRepository;
 	private AccountRepository $accountRepository;
 
@@ -20,6 +17,16 @@ class OTPService extends Service {
 		$this->accountRepository = new AccountRepository();
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	public static function askForOTP(string $guid, string $auth, string $callback): never {
+		$_SESSION['guid'] = $guid;
+		$_SESSION['auth'] = $auth;
+		$_SESSION['callback'] = $callback;
+		Service::redirect('/otp-verify');
+	}
+
 	public static function routes(): array {
 		return ['/otp', '/get-otp', '/otp-verify'];
 	}
@@ -27,27 +34,17 @@ class OTPService extends Service {
 	/**
 	 * @throws Exception
 	 */
-	#[NoReturn] public function askForOTP(string $guid, string $auth, callable $on_valid): void {
-		static::addOTPToCache($guid, $auth, $on_valid);
-		$_SESSION['guid'] = $guid;
-		$this->redirect('/otp-verify');
-	}
-
-	private static function addOTPToCache(string $guid, string $auth, callable $on_valid): void {
-		static::$otpCache[$guid] = compact('auth', 'on_valid');
-	}
-
-	/**
-	 * @throws Exception
-	 */
-	#[NoReturn]
 	protected function handleRoutes(): void {
-		/** @var User $user */
 		$user_guid = $_SESSION['user']->guid ?? $_SESSION['guid'];
-		$is_temporary = !isset($_SESSION['user']);
+		$is_temporary = isset($_SESSION['auth']) && $_SESSION['auth'] === 'register';
 
 		if (static::onRouteGet('/otp')) {
-			$otp = $this->getOTPForUser($user_guid, $is_temporary);
+			if ($user_guid === null) {
+				$otp = 'Cannot generate OTP for user.';
+			} else {
+				$otp = $this->getOTPForUser($user_guid, $is_temporary);
+			}
+
 			$this->render('otp', compact('otp'));
 		}
 
@@ -59,22 +56,26 @@ class OTPService extends Service {
 		}
 
 		if (static::onRoutePost('/otp-verify')) {
-			$otp = $this->getRequiredParam('otp');
+			$otp = (int)$this->getRequiredParam('otp');
+
+			if (!isset($_SESSION['guid'], $_SESSION['auth'], $_SESSION['callback'])) {
+				Service::sendError('OTP not found.', 404);
+			}
+
 			$guid = $_SESSION['guid'];
-
-			if (!static::hasOTPInCache($guid)) {
-				$this->sendError('OTP not found.', 404);
+			$valid_otp = $this->accountOTPRepository->getOTPByGUID($guid);
+			if ($valid_otp?->otp !== $otp) {
+				Service::sendError('OTP does not match.', 403);
 			}
 
-			if (!static::isValidOTPInCache($guid, $otp)) {
-				$this->sendError('OTP does not match.', 403);
-			}
-
-			static::callOnValidOTPInCache($guid);
-			static::removeOTPFromCache($guid);
+			$callback = $_SESSION['callback'];
+			$callback($guid, $_SESSION['auth']);
+			unset($_SESSION['auth'], $_SESSION['callback'], $_SESSION['guid']);
 			$this->accountOTPRepository->deleteOTP($guid);
 			$this->sendSuccess();
 		}
+
+		Service::sendError('Route not found.', 404);
 	}
 
 	/**
@@ -83,7 +84,7 @@ class OTPService extends Service {
 	public function getOTPForUser(string $guid, bool $temp = false): string {
 		$account = $temp ? $this->accountRepository->getTempAccountByGUID($guid) : $this->accountRepository->getAccountByGUID($guid);
 		if ($account === null) {
-			$this->sendError('Account not found.', 404);
+			Service::sendError('Account not found.', 404);
 		}
 
 		$otp = $this->accountOTPRepository->getOTPByGUID($account->guid);
@@ -114,24 +115,5 @@ class OTPService extends Service {
 	 */
 	private static function generateOTP(): int {
 		return random_int(100000, 999999);
-	}
-
-	private static function hasOTPInCache(string $guid): bool {
-		return isset(static::$otpCache[$guid]);
-	}
-
-	private static function isValidOTPInCache(string $guid, string $auth): bool {
-		return static::hasOTPInCache($guid) && static::$otpCache[$guid]['auth'] === $auth;
-	}
-
-	private static function callOnValidOTPInCache(string $guid): void {
-		if (static::hasOTPInCache($guid)) {
-			$on_valid = static::$otpCache[$guid]['on_valid'];
-			$on_valid();
-		}
-	}
-
-	private static function removeOTPFromCache(string $guid): void {
-		unset(static::$otpCache[$guid]);
 	}
 }

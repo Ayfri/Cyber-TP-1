@@ -35,46 +35,46 @@ class ManageAccountService extends Service {
 			$confirm_password = $this->getRequiredParam('confirm-password');
 
 			if (!is_hashed($current_password) || !is_hashed($new_password) || !is_hashed($confirm_password)) {
-				$this->sendError('Passwords must be hashed.');
+				Service::sendError('Passwords must be hashed.');
 			}
 
 			if ($new_password !== $confirm_password) {
-				$this->sendError('Passwords do not match.');
+				Service::sendError('Passwords do not match.');
 			}
 
 			/** @var User $user */
 			$user = $_SESSION['user'];
 			$account = $this->accountRepository->getAccountByGUID($user->guid);
 			if ($account === null) {
-				$this->sendError('Account not found.', 404);
+				Service::sendError('Account not found.', 404);
 			}
 
 			$hashed_password = hash('sha512', $current_password . $account->salt);
 			if ($hashed_password !== $account->password) {
-				$this->sendError('Incorrect password.', 401);
+				Service::sendError('Incorrect password.', 401);
 			}
 
 			$hashed_new_password = hash('sha512', $new_password . $account->salt);
 			$this->accountRepository->updatePassword($account->guid, $hashed_new_password);
-			$this->redirect('/');
+			Service::redirect('/');
 		}
 
 		if (static::onRoutePost('/delete-account')) {
 			$current_password = $this->getRequiredParam('password');
 			if (!is_hashed($current_password)) {
-				$this->sendError('Passwords must be hashed.');
+				Service::sendError('Passwords must be hashed.');
 			}
 
 			/** @var User $user */
 			$user = $_SESSION['user'];
 			$account = $this->accountRepository->getAccountByGUID($user->guid);
 			if ($account === null) {
-				$this->sendError('Account not found.', 404);
+				Service::sendError('Account not found.', 404);
 			}
 
 			$hashed_password = hash('sha512', $current_password . $account->salt);
 			if ($hashed_password !== $account->password) {
-				$this->sendError('Incorrect password.', 401);
+				Service::sendError('Incorrect password.', 401);
 			}
 
 			unset($_SESSION['user']);
