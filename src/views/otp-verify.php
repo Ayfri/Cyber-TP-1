@@ -20,6 +20,7 @@ ob_start();
 			type="number"
 		>
 		<button type="submit" class="btn btn-primary">Verify</button>
+		<button id="cancel" class='red'>Cancel</button>
 	</form>
 	<p>
 		Go to OTP <a href="/otp" target='_blank'>page</a>

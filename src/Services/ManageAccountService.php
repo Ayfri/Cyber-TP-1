@@ -6,6 +6,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Repositories\AccountRepository;
 use App\Repositories\UserRepository;
+use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use function App\Utils\is_hashed;
 use function session_destroy;
@@ -20,15 +21,16 @@ class ManageAccountService extends Service {
 		$this->userRepository = new UserRepository();
 	}
 
-	public static function onOTPValidationCallback(string $guid, string $type): void {
+	public static function onOTPValidationCallback(string $guid, string $type, bool $cancelled): void {
 		if ($type === 'change-password') {
 			$account_repository = new AccountRepository();
-			$account = $account_repository->getAccountByGUID($guid);
+			$account = $account_repository->getTempAccountByGUID($guid);
 			if ($account === null) {
 				Service::sendError('Account not found.', 404);
 			}
 
-			$account_repository->updatePassword($guid, $account->salt);
+			$account_repository->transferTempAccountToAccount($guid);
+//			$account_repository->updatePassword($guid, $account->salt);
 			Service::redirect('/');
 		}
 
@@ -44,6 +46,9 @@ class ManageAccountService extends Service {
 		return ['/change-password', '/delete-account'];
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	#[NoReturn]
 	protected function handleRoutes(): void {
 		$this->renderOnGet('/change-password');
@@ -77,9 +82,17 @@ class ManageAccountService extends Service {
 			$hashed_new_password = hash('sha512', $new_password . $account->salt);
 
 			// TODO: Add OTP
+			$this->accountRepository->transferAccountToTemp($account->guid);
+			$this->accountRepository->updateTempPassword($account->guid, $hashed_new_password);
 
-			$this->accountRepository->updatePassword($account->guid, $hashed_new_password);
-			Service::redirect('/');
+			OTPService::askForOTP(
+				$account->guid,
+				'change-password',
+				'App\Services\ManageAccountService::onOTPValidationCallback',
+			);
+
+//			$this->accountRepository->updatePassword($account->guid, $hashed_new_password);
+//			Service::redirect('/');
 		}
 
 		if (static::onRoutePost('/delete-account')) {

@@ -23,7 +23,7 @@ class AuthService extends Service {
 		$this->userRepository = new UserRepository();
 	}
 
-	public static function onOTPValidationCallback(string $guid, string $type): void {
+	public static function onOTPValidationCallback(string $guid, string $type, bool $cancelled): void {
 		if ($type === 'register') {
 			$account_repository = new AccountRepository();
 			$account = $account_repository->getTempAccountByGUID($guid);
@@ -31,7 +31,14 @@ class AuthService extends Service {
 				Service::sendError('Account not found.', 404);
 			}
 
-			$account_repository->transferTempAccount($guid);
+			if ($cancelled) {
+				$user_repository = new UserRepository();
+				$account_repository->deleteTempAccount($guid);
+				$user_repository->deleteUser($guid);
+				Service::sendSuccess(204);
+			}
+
+			$account_repository->transferTempAccountToAccount($guid);
 			$account_repository->deleteTempAccount($guid);
 		}
 	}

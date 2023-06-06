@@ -51,25 +51,33 @@ class OTPService extends Service {
 		$this->renderOnGet('/otp-verify', 'otp-verify');
 
 		if (static::onRouteGet('/get-otp')) {
-			$otp = $this->getOTPForUser($user_guid);
+			$otp = $this->getOTPForUser($user_guid, $is_temporary);
 			Service::sendResponse($otp);
 		}
 
 		if (static::onRoutePost('/otp-verify')) {
-			$otp = (int)$this->getRequiredParam('otp');
-
 			if (!isset($_SESSION['guid'], $_SESSION['type'], $_SESSION['callback'])) {
 				Service::sendError('OTP not found.', 404);
 			}
 
+			$callback = $_SESSION['callback'];
+			$cancelled = $this->data['cancelled'] ?? false;
+
+			if ($cancelled) {
+				$callback($_SESSION['type'], $_SESSION['guid'], true);
+				unset($_SESSION['type'], $_SESSION['callback'], $_SESSION['guid']);
+				$this->accountOTPRepository->deleteOTP($user_guid);
+				Service::sendSuccess();
+			}
+
+			$otp = (int)$this->getRequiredParam('otp');
 			$guid = $_SESSION['guid'];
 			$valid_otp = $this->accountOTPRepository->getOTPByGUID($guid);
 			if ($valid_otp?->otp !== $otp) {
 				Service::sendError('OTP does not match.', 403);
 			}
 
-			$callback = $_SESSION['callback'];
-			$callback($guid, $_SESSION['type']);
+			$callback($guid, $_SESSION['type'], false);
 			unset($_SESSION['type'], $_SESSION['callback'], $_SESSION['guid']);
 			$this->accountOTPRepository->deleteOTP($guid);
 			Service::sendSuccess();
@@ -82,7 +90,9 @@ class OTPService extends Service {
 	 * @throws Exception
 	 */
 	public function getOTPForUser(string $guid, bool $temp = false): string {
-		$account = $temp ? $this->accountRepository->getTempAccountByGUID($guid) : $this->accountRepository->getAccountByGUID($guid);
+		$account = $temp ? $this->accountRepository->getTempAccountByGUID(
+			$guid,
+		) : $this->accountRepository->getAccountByGUID($guid);
 		if ($account === null) {
 			Service::sendError('Account not found.', 404);
 		}
