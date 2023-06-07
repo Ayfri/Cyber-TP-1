@@ -44,9 +44,10 @@ class OTPService extends Service {
 		}
 
 		if (Service::onRouteGet('/otp')) {
-			if ($user_guid === null) {
+			if (!isset($_SESSION['type']) || $user_guid === null) {
 				$otp = 'No otp request found.';
 			} else {
+				// TODO : Fix this being called when no otp is requested and user is logged in but should not be.
 				$otp = $this->getOTPForUser($user_guid, $is_temporary);
 			}
 
@@ -61,7 +62,7 @@ class OTPService extends Service {
 		}
 
 		if (Service::onRouteGet('/get-otp')) {
-			if ($user_guid === null) {
+			if (!isset($_SESSION['type']) || $user_guid === null) {
 				Service::sendError('No otp request found.', 404);
 			}
 			$otp = $this->getOTPForUser($user_guid, $is_temporary);
