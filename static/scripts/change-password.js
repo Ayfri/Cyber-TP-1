@@ -17,6 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
+		if (currentPassword === newPassword) {
+			alert('New password cannot be same as current password');
+			return;
+		}
+
 		const hashedCurrentPassword = await sha512(currentPassword);
 		const hashedNewPassword = await sha512(newPassword);
 		const hashedConfirmPassword = await sha512(confirmPassword);

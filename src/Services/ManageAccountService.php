@@ -73,6 +73,10 @@ class ManageAccountService extends Service {
 				Service::sendError('Passwords do not match.');
 			}
 
+			if ($current_password === $new_password) {
+				Service::sendError('New password cannot be the same as the current password.');
+			}
+
 			/** @var User $user */
 			$user = $_SESSION['user'];
 			$account = $this->accountRepository->getAccountByGUID($user->guid);
