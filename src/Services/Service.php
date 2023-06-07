@@ -48,9 +48,9 @@ abstract class Service {
 		$this->handleRoutes();
 	}
 
-	private function checkAuth(): void {
-		$session_present = !isset($_SESSION['user']);
-		if ($session_present) {
+	protected function checkAuth(): void {
+		$session_present = isset($_SESSION['user']);
+		if (!$session_present) {
 			static::redirect('/login');
 		}
 
@@ -68,7 +68,7 @@ abstract class Service {
 		exit();
 	}
 
-	abstract protected function handleRoutes(): void;
+	abstract protected function handleRoutes(): never;
 
 	protected function getRequiredParam(string $param, ?string $error = null): string {
 		$error_message = $error ?? "Missing required parameter '$param'.";

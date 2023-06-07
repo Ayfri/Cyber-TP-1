@@ -18,6 +18,16 @@ class AccountRepository {
 		$statement->execute(compact('guid', 'password', 'salt'));
 	}
 
+	public function deleteAccount(string $guid): void {
+		$statement = $this->db->prepare(
+			<<<SQL
+			DELETE FROM accounts
+			WHERE guid = :guid
+		SQL,
+		);
+		$statement->execute(compact('guid'));
+	}
+
 	public function deleteTempAccount(string $guid): void {
 		$statement = $this->db->prepare(
 			<<<SQL

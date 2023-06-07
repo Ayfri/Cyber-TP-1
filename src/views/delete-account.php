@@ -6,7 +6,8 @@ $js = ['delete-account.js'];
 
 ob_start();
 ?>
-	<h1>Delete password</h1>
+	<h1>Delete your account ?</h1>
+	<p class='hint'>Please enter your password to confirm.</p>
 	<form id='delete-account-form' method='post'>
 		<label for='password'>Password</label>
 		<input

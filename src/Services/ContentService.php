@@ -11,7 +11,9 @@ class ContentService extends Service {
 	}
 
 	#[NoReturn]
-	protected function handleRoutes(): void {
+	protected function handleRoutes(): never {
 		$this->renderOnGet('/', 'home');
+
+		Service::sendError('Not found.', 404);
 	}
 }

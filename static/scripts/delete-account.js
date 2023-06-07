@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 
 		if (response.ok) {
-			window.location.href = '/register';
+			window.location.href = '/otp-verify';
 		} else {
 			alert(`Error while deleting account : ${await response.text()}`);
 		}

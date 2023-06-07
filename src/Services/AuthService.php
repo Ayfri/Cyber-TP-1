@@ -7,10 +7,10 @@ use App\Repositories\AccountAttemptRepository;
 use App\Repositories\AccountRepository;
 use App\Repositories\UserRepository;
 use Exception;
-use JetBrains\PhpStorm\NoReturn;
 use function App\Utils\is_hashed;
 use function App\Utils\random_salt;
 use function App\Utils\uuid;
+use function session_destroy;
 
 class AuthService extends Service {
 	private AccountAttemptRepository $accountAttemptRepository;
@@ -35,11 +35,12 @@ class AuthService extends Service {
 				$user_repository = new UserRepository();
 				$account_repository->deleteTempAccount($guid);
 				$user_repository->deleteUser($guid);
-				Service::sendSuccess(204);
+				Service::redirect('/');
 			}
 
 			$account_repository->transferTempAccountToAccount($guid);
 			$account_repository->deleteTempAccount($guid);
+			Service::redirect('/');
 		}
 	}
 
@@ -50,8 +51,7 @@ class AuthService extends Service {
 	/**
 	 * @throws Exception
 	 */
-	#[NoReturn]
-	protected function handleRoutes(): void {
+	protected function handleRoutes(): never {
 		$this->renderOnGet('/register');
 		$this->renderOnGet('/login');
 
@@ -119,9 +119,12 @@ class AuthService extends Service {
 			Service::sendSuccess();
 		}
 
-		if (static::onRoutePost('/logout')) {
-			unset($_SESSION['user']);
+		if (static::onRouteGet('/logout')) {
+			unset($_SESSION);
+			session_destroy();
 			Service::sendSuccess();
 		}
+
+		Service::sendError('Route not found.', 404);
 	}
 }

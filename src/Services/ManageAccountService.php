@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Repositories\AccountRepository;
 use App\Repositories\UserRepository;
 use Exception;
-use JetBrains\PhpStorm\NoReturn;
 use function App\Utils\is_hashed;
 use function session_destroy;
 
@@ -29,12 +28,20 @@ class ManageAccountService extends Service {
 				Service::sendError('Account not found.', 404);
 			}
 
+			if ($cancelled) {
+				$account_repository->deleteTempAccount($guid);
+				Service::redirect('/');
+			}
+
 			$account_repository->transferTempAccountToAccount($guid);
-//			$account_repository->updatePassword($guid, $account->salt);
 			Service::redirect('/');
 		}
 
 		if ($type === 'delete-account') {
+			if ($cancelled) {
+				Service::redirect('/');
+			}
+
 			$user_repository = new UserRepository();
 			$user_repository->deleteUser($guid);
 			session_destroy();
@@ -49,12 +56,11 @@ class ManageAccountService extends Service {
 	/**
 	 * @throws Exception
 	 */
-	#[NoReturn]
-	protected function handleRoutes(): void {
+	protected function handleRoutes(): never {
 		$this->renderOnGet('/change-password');
 		$this->renderOnGet('/delete-account');
 
-		if (static::onRoutePost('/change-password')) {
+		if (Service::onRoutePost('/change-password')) {
 			$current_password = $this->getRequiredParam('current-password');
 			$new_password = $this->getRequiredParam('new-password');
 			$confirm_password = $this->getRequiredParam('confirm-password');
@@ -81,7 +87,7 @@ class ManageAccountService extends Service {
 
 			$hashed_new_password = hash('sha512', $new_password . $account->salt);
 
-			// TODO: Add OTP
+			$this->accountRepository->deleteTempAccount($account->guid);
 			$this->accountRepository->transferAccountToTemp($account->guid);
 			$this->accountRepository->updateTempPassword($account->guid, $hashed_new_password);
 
@@ -90,12 +96,9 @@ class ManageAccountService extends Service {
 				'change-password',
 				'App\Services\ManageAccountService::onOTPValidationCallback',
 			);
-
-//			$this->accountRepository->updatePassword($account->guid, $hashed_new_password);
-//			Service::redirect('/');
 		}
 
-		if (static::onRoutePost('/delete-account')) {
+		if (Service::onRoutePost('/delete-account')) {
 			$current_password = $this->getRequiredParam('password');
 			if (!is_hashed($current_password)) {
 				Service::sendError('Passwords must be hashed.');
@@ -113,10 +116,13 @@ class ManageAccountService extends Service {
 				Service::sendError('Incorrect password.', 401);
 			}
 
-			// TODO: Add OTP
-
-			unset($_SESSION['user']);
-			$this->userRepository->deleteUser($account->guid);
+			OTPService::askForOTP(
+				$account->guid,
+				'delete-account',
+				'App\Services\ManageAccountService::onOTPValidationCallback',
+			);
 		}
+
+		Service::sendError('Not found.', 404);
 	}
 }
