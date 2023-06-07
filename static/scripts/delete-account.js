@@ -1,4 +1,4 @@
-import {sha512} from "./utils.js";
+import {sha512} from "./hash.js";
 
 document.addEventListener('DOMContentLoaded', () => {
 	const deleteAccountForm = document.querySelector('#delete-account-form');

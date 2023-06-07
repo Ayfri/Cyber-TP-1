@@ -1,4 +1,5 @@
-import {sha512} from "./utils.js";
+import {sha512} from "./hash.js";
+import {checkEmail, checkPassword} from "./patterns.js";
 
 document.addEventListener('DOMContentLoaded', () => {
 	/**
@@ -8,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	form.addEventListener('submit', async e => {
 		e.preventDefault();
+		const email = form.querySelector('#email').value;
 		const password = form.querySelector('#password').value;
 		const confirmPassword = form.querySelector('#confirm-password').value;
 
@@ -15,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			alert('Passwords do not match');
 			return;
 		}
+
+		if (!checkEmail(email)) return;
+		if (!checkPassword(password)) return;
 
 		const hashedPassword = await sha512(password);
 		const hashedConfirmPassword = await sha512(confirmPassword);

@@ -30,11 +30,13 @@ class ManageAccountService extends Service {
 
 			if ($cancelled) {
 				$account_repository->deleteTempAccount($guid);
-				Service::redirect('/');
+				Service::sendSuccess(204);
 			}
 
+			$account_repository->deleteAccount($guid);
 			$account_repository->transferTempAccountToAccount($guid);
-			Service::redirect('/');
+			$account_repository->deleteTempAccount($guid);
+			Service::sendSuccess(204);
 		}
 
 		if ($type === 'delete-account') {

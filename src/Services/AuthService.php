@@ -35,12 +35,12 @@ class AuthService extends Service {
 				$user_repository = new UserRepository();
 				$account_repository->deleteTempAccount($guid);
 				$user_repository->deleteUser($guid);
-				Service::redirect('/');
+				Service::sendSuccess(204);
 			}
 
 			$account_repository->transferTempAccountToAccount($guid);
 			$account_repository->deleteTempAccount($guid);
-			Service::redirect('/');
+			Service::sendSuccess(204);
 		}
 	}
 

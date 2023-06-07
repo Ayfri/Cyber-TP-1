@@ -1,4 +1,5 @@
-import {sha512} from "./utils.js";
+import {sha512} from "./hash.js";
+import {checkPassword} from "./patterns.js";
 
 document.addEventListener('DOMContentLoaded', () => {
 	/**
@@ -21,6 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			alert('New password cannot be same as current password');
 			return;
 		}
+
+		if (!checkPassword(newPassword)) return;
 
 		const hashedCurrentPassword = await sha512(currentPassword);
 		const hashedNewPassword = await sha512(newPassword);

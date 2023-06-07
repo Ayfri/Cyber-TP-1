@@ -7,13 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const otpCancelButton = document.querySelector('#cancel');
 
-	otpInput.addEventListener('beforeinput', (e) => {
+	otpInput.addEventListener('beforeinput', e => {
 		if (otpInput.value.length > otpInput.maxLength - 1 && e.inputType.match(/insert/i)) {
 			e.preventDefault();
 		}
 	});
 
-	otpForm.addEventListener('submit', async (e) => {
+	otpForm.addEventListener('submit', async e => {
 		e.preventDefault();
 		const formData = new FormData(otpForm);
 
@@ -29,10 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 
-	otpCancelButton.addEventListener('click', async (e) => {
+	otpCancelButton.addEventListener('click', async e => {
 		e.preventDefault();
+
 		const data = new FormData();
 		data.set('cancelled', 'true');
+
 		const response = await fetch('/otp-verify', {
 			method: 'POST',
 			body: data
