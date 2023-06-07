@@ -26,6 +26,6 @@ class AccountAuthorizationRepository {
 		SQL,
 		);
 		$statement->execute(compact('guid'));
-		return (int)$statement->fetch()->count > 0;
+		return count($statement->fetch()) > 0;
 	}
 }

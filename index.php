@@ -17,11 +17,6 @@ date_default_timezone_set('Europe/Paris');
 
 session_start();
 
-global $otp_service;
-$otp_service = new OTPService();
-if ($otp_service::isHandledRoute()) {
-	$otp_service->handle();
-}
 
 $auth_service = new AuthService();
 if ($auth_service::isHandledRoute()) {
@@ -36,4 +31,9 @@ if ($content_service::isHandledRoute()) {
 $manage_account_service = new ManageAccountService();
 if ($manage_account_service::isHandledRoute()) {
 	$manage_account_service->handle();
+}
+
+$otp_service = new OTPService();
+if ($otp_service::isHandledRoute()) {
+	$otp_service->handle();
 }
