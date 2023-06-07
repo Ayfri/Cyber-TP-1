@@ -3,17 +3,20 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Repositories\AccountAuthorizationRepository;
 use App\Repositories\UserRepository;
 use RuntimeException;
 use function App\Utils\log_message;
 
 abstract class Service {
+	protected AccountAuthorizationRepository $accountAuthorizationRepository;
 	protected array $data = [];
 	protected bool $requiresAuth;
 	protected UserRepository $userRepository;
 
 	public function __construct(bool $requires_auth = true) {
 		$this->requiresAuth = $requires_auth;
+		$this->accountAuthorizationRepository = new AccountAuthorizationRepository();
 		$this->userRepository = new UserRepository();
 	}
 
@@ -43,7 +46,9 @@ abstract class Service {
 		log_message('Handling request from service: ' . basename(static::class));
 		if ($this->requiresAuth) {
 			$this->checkAuth();
+			$this->checkAuthorization();
 		}
+
 		$this->data = [...$_POST, ...$_GET];
 		$this->handleRoutes();
 	}
@@ -68,6 +73,20 @@ abstract class Service {
 		exit();
 	}
 
+	private function checkAuthorization(): void {
+		$user_id = $_SESSION['user']->guid;
+		$authorized = $this->accountAuthorizationRepository->isPublicAuthorization($user_id);
+		if (!$authorized) {
+			static::sendError('Unauthorized.', 401);
+		}
+	}
+
+	protected static function sendError(string $message, int $code = 400): never {
+		http_response_code($code);
+		echo $message;
+		exit();
+	}
+
 	abstract protected function handleRoutes(): never;
 
 	protected function getRequiredParam(string $param, ?string $error = null): string {
@@ -77,12 +96,6 @@ abstract class Service {
 		}
 
 		return $this->data[$param];
-	}
-
-	protected static function sendError(string $message, int $code = 400): never {
-		http_response_code($code);
-		echo $message;
-		exit();
 	}
 
 	protected function renderOnGet(string $route, ?string $view = null, array $data = []): void {

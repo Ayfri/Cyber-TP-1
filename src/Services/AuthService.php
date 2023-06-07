@@ -86,6 +86,7 @@ class AuthService extends Service {
 
 			$this->userRepository->createUser($guid, $email);
 			$this->accountRepository->createTempAccount($guid, $hashed_password, $salt);
+			$this->accountAuthorizationRepository->createAccountAuthorization($guid, 'user');
 
 			OTPService::askForOTP($guid, 'register', 'App\Services\AuthService::onOTPValidationCallback');
 		}
