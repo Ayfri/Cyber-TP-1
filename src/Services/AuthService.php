@@ -10,7 +10,9 @@ use Exception;
 use function App\Utils\is_hashed;
 use function App\Utils\random_salt;
 use function App\Utils\uuid;
+use function filter_var;
 use function session_destroy;
+use const FILTER_VALIDATE_EMAIL;
 
 class AuthService extends Service {
 	private AccountAttemptRepository $accountAttemptRepository;
@@ -59,6 +61,10 @@ class AuthService extends Service {
 			$email = $this->getRequiredParam('email');
 			$password = $this->getRequiredParam('password');
 			$confirm_password = $this->getRequiredParam('confirm-password');
+
+			if (!static::checkEmail($email)) {
+				Service::sendError('Invalid email.');
+			}
 
 			if (!is_hashed($password) || !is_hashed($confirm_password)) {
 				Service::sendError('Passwords must be hashed.');
@@ -126,5 +132,9 @@ class AuthService extends Service {
 		}
 
 		Service::sendError('Route not found.', 404);
+	}
+
+	private static function checkEmail(string $email): bool {
+		return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
 	}
 }
