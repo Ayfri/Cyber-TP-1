@@ -17,7 +17,6 @@ date_default_timezone_set('Europe/Paris');
 
 session_start();
 
-
 $auth_service = new AuthService();
 if ($auth_service::isHandledRoute()) {
 	$auth_service->handle();

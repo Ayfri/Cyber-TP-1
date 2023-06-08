@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
+
 $content = ob_get_clean();
+
 ?>
 <!doctype html>
 <html lang="en">

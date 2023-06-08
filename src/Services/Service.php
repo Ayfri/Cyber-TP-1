@@ -115,7 +115,7 @@ abstract class Service {
 		$user_id = $_SESSION['user']->guid;
 		$authorized = $this->accountAuthorizationRepository->isPublicAuthorization($user_id);
 		if (!$authorized) {
-			static::sendError('Unauthorized.', 401);
+			$this->render('unauthorized');
 		}
 	}
 }
