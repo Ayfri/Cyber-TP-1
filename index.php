@@ -18,21 +18,23 @@ date_default_timezone_set('Europe/Paris');
 session_start();
 
 $auth_service = new AuthService();
-if ($auth_service::isHandledRoute()) {
+if (AuthService::isHandledRoute()) {
 	$auth_service->handle();
 }
 
 $content_service = new ContentService();
-if ($content_service::isHandledRoute()) {
+if (ContentService::isHandledRoute()) {
 	$content_service->handle();
 }
 
 $manage_account_service = new ManageAccountService();
-if ($manage_account_service::isHandledRoute()) {
+if (ManageAccountService::isHandledRoute()) {
 	$manage_account_service->handle();
 }
 
 $otp_service = new OTPService();
-if ($otp_service::isHandledRoute()) {
+if (OTPService::isHandledRoute()) {
 	$otp_service->handle();
 }
+
+require_once __DIR__ . '/src/views/404.php';
