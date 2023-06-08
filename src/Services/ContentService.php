@@ -3,10 +3,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use JetBrains\PhpStorm\NoReturn;
-
 class ContentService extends Service {
-	#[NoReturn]
 	protected function handleRoutes(): never {
 		$this->renderOnGet('/', 'home');
 

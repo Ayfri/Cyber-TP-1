@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 $title = 'Home';
-$js = ['home.js'];
+$js = ['logout-button.js'];
 
 ob_start();
 
@@ -14,6 +14,7 @@ global $user;
 	</a>
 
 	<button id='disconnect'>Disconnect</button>
+
 	<a href='/delete-account' class='no-hover'>
 		<button class='red'>Delete account</button>
 	</a>
