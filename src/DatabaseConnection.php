@@ -7,10 +7,10 @@ use PDO;
 use function App\Utils\env;
 
 class DatabaseConnection {
-	private ?PDO $database = null;
+	private static ?PDO $database = null;
 
-	public function getConnection(): PDO {
-		if ($this->database === null) {
+	public static function getConnection(): PDO {
+		if (static::$database === null) {
 			$host = env('DB_HOST');
 			$password = env('DB_PASSWORD');
 			$username = env('DB_USERNAME');
@@ -18,7 +18,7 @@ class DatabaseConnection {
 			$database = env('DB_NAME');
 
 			$dsn = "mysql:host=$host;port=$port;dbname=$database";
-			$this->database = new PDO(
+			static::$database = new PDO(
 				$dsn, $username, $password,
 				[
 					PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
@@ -29,6 +29,6 @@ class DatabaseConnection {
 			);
 		}
 
-		return $this->database;
+		return static::$database;
 	}
 }

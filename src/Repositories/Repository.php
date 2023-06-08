@@ -10,6 +10,6 @@ trait Repository {
 	public PDO $db;
 
 	public function __construct() {
-		$this->db = (new DatabaseConnection())->getConnection();
+		$this->db = DatabaseConnection::getConnection();
 	}
 }
