@@ -12,7 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	const otp = document.querySelector('#otp');
 	otp.addEventListener('click', async () => await navigator.clipboard.writeText(otp.textContent.trim()));
 
-	setInterval(async () => await fetchAndReplaceOTP(otp), 20 * 1000);
+	setInterval(async () => await fetchAndReplaceOTP(otp), 15 * 1000);
 
-	window.addEventListener('focus', async () => await fetchAndReplaceOTP(otp));
+	document.addEventListener('visibilitychange', async () => {
+		if (document.hidden) return;
+		await fetchAndReplaceOTP(otp);
+	});
 });
