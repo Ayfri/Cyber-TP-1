@@ -10,27 +10,30 @@ class AccountOTPRepository {
 	use Repository;
 
 	public function createOTP(string $guid, int $otp, string $validity): void {
-		$this->db->prepare(<<<SQL
+		$this->db->prepare(
+			<<<SQL
 			INSERT INTO accounts_otp (guid, otp, validity)
 			VALUES (:guid, :otp, :validity)
-		SQL
+		SQL,
 		)->execute(compact('guid', 'otp', 'validity'));
 	}
 
 	public function deleteOTP(string $guid): void {
-		$this->db->prepare(<<<SQL
+		$this->db->prepare(
+			<<<SQL
 			DELETE FROM accounts_otp
 			WHERE guid = :guid
-		SQL
+		SQL,
 		)->execute(compact('guid'));
 	}
 
 	public function getOTPByGUID(string $guid): ?AccountOTP {
-		$stmt = $this->db->prepare(<<<SQL
+		$stmt = $this->db->prepare(
+			<<<SQL
 			SELECT *
 			FROM accounts_otp
 			WHERE guid = :guid
-		SQL
+		SQL,
 		);
 		$stmt->execute(compact('guid'));
 		$otp = $stmt->fetch(PDO::FETCH_ASSOC);

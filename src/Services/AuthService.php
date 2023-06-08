@@ -46,8 +46,8 @@ class AuthService extends Service {
 		}
 	}
 
-	public static function routes(): array {
-		return ['/login', '/register', '/logout'];
+	private static function checkEmail(string $email): bool {
+		return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
 	}
 
 	/**
@@ -135,7 +135,7 @@ class AuthService extends Service {
 		Service::sendError('Route not found.', 404);
 	}
 
-	private static function checkEmail(string $email): bool {
-		return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+	public static function routes(): array {
+		return ['/login', '/register', '/logout'];
 	}
 }

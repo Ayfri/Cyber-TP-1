@@ -11,7 +11,6 @@ use function App\Utils\is_hashed;
 use function session_destroy;
 
 class ManageAccountService extends Service {
-
 	private AccountRepository $accountRepository;
 
 	public function __construct() {
@@ -49,10 +48,6 @@ class ManageAccountService extends Service {
 			session_destroy();
 			Service::sendSuccess(204);
 		}
-	}
-
-	public static function routes(): array {
-		return ['/change-password', '/delete-account'];
 	}
 
 	/**
@@ -130,5 +125,9 @@ class ManageAccountService extends Service {
 		}
 
 		Service::sendError('Not found.', 404);
+	}
+
+	public static function routes(): array {
+		return ['/change-password', '/delete-account'];
 	}
 }

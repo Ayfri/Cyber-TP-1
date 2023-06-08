@@ -10,27 +10,30 @@ class AccountAttemptRepository {
 	use Repository;
 
 	public function createAccountAttempt(string $guid): void {
-		$this->db->prepare(<<<SQL
+		$this->db->prepare(
+			<<<SQL
 			INSERT INTO accounts_attempt (guid)
 			VALUES (:guid)
-		SQL
+		SQL,
 		)->execute(compact('guid'));
 	}
 
 	public function deleteAccountAttempts(string $guid): void {
-		$this->db->prepare(<<<SQL
+		$this->db->prepare(
+			<<<SQL
 			DELETE FROM accounts_attempt
 			WHERE guid = :guid
-		SQL
+		SQL,
 		)->execute(compact('guid'));
 	}
 
 	public function getAccountAttempts(string $guid, int $interval): array {
-		$stmt = $this->db->prepare(<<<SQL
+		$stmt = $this->db->prepare(
+			<<<SQL
 			SELECT time
 			FROM accounts_attempt
 			WHERE guid = :guid AND time > DATE_SUB(NOW(), INTERVAL :interval MINUTE)
-		SQL
+		SQL,
 		);
 		$stmt->execute(compact('guid', 'interval'));
 		$attempts = [];
