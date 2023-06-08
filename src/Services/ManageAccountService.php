@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Repositories\AccountRepository;
 use App\Repositories\UserRepository;
 use Exception;
@@ -74,9 +73,8 @@ class ManageAccountService extends Service {
 				Service::sendError('New password cannot be the same as the current password.');
 			}
 
-			/** @var User $user */
-			$user = $_SESSION['user'];
-			$account = $this->accountRepository->getAccountByGUID($user->guid);
+			$guid = $_SESSION['guid'];
+			$account = $this->accountRepository->getAccountByGUID($guid);
 			if ($account === null) {
 				Service::sendError('Account not found.', 404);
 			}
@@ -105,9 +103,8 @@ class ManageAccountService extends Service {
 				Service::sendError('Passwords must be hashed.');
 			}
 
-			/** @var User $user */
-			$user = $_SESSION['user'];
-			$account = $this->accountRepository->getAccountByGUID($user->guid);
+			$guid = $_SESSION['guid'];
+			$account = $this->accountRepository->getAccountByGUID($guid);
 			if ($account === null) {
 				Service::sendError('Account not found.', 404);
 			}

@@ -69,18 +69,17 @@ abstract class Service {
 	}
 
 	protected function checkAuth(): void {
-		$session_present = isset($_SESSION['user']);
+		$session_present = isset($_SESSION['guid']);
 		if (!$session_present) {
 			static::redirect('/login');
 		}
 
-		$user_exists = $this->userRepository->getUserByGUID($_SESSION['user']->guid) !== null;
+		global $user;
+		$user = $this->userRepository->getUserByGUID($_SESSION['guid']);
+		$user_exists = $user !== null;
 		if (!$user_exists) {
 			static::redirect('/login');
 		}
-
-		global $user;
-		$user = $_SESSION['user'];
 	}
 
 	protected function getRequiredParam(string $param, ?string $error = null): string {
@@ -112,8 +111,8 @@ abstract class Service {
 	}
 
 	private function checkAuthorization(): void {
-		$user_id = $_SESSION['user']->guid;
-		$authorized = $this->accountAuthorizationRepository->isPublicAuthorization($user_id);
+		$guid = $_SESSION['guid'];
+		$authorized = $this->accountAuthorizationRepository->isPublicAuthorization($guid);
 		if (!$authorized) {
 			$this->render('unauthorized');
 		}

@@ -122,7 +122,7 @@ class AuthService extends Service {
 
 			$this->accountAttemptRepository->deleteAccountAttempts($account->guid);
 
-			$_SESSION['user'] = $user;
+			$_SESSION['guid'] = $user->guid;
 			Service::sendSuccess();
 		}
 
